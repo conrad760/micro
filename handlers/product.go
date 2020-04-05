@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -77,6 +78,15 @@ func (p Products) MiddlewareValidateProduct(next http.Handler) http.Handler {
 			p.l.Println("[ERROR] deserializing product", err)
 			http.Error(rw, "Coffee is too hot", http.StatusBadRequest)
 			return
+		}
+
+		//validate
+		err = prod.Validate()
+		if err != nil {
+			p.l.Println("[ERROR] validating product", err)
+			http.Error(rw, fmt.Sprintf("Coffee is too hot: try fixing this\n %s", err), http.StatusBadRequest)
+			return
+
 		}
 
 		ctx := context.WithValue(r.Context(), KeyProduct{}, prod)

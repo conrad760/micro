@@ -4,16 +4,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"regexp"
 	"time"
+
+	"github.com/go-playground/validator"
 )
 
 // Product is the structure of the data I am playing with
 type Product struct {
 	ID          int     `json:"id"`
-	Name        string  `json:"name"`
+	Name        string  `json:"name" validate:"required"`
 	Description string  `json:"description"`
-	Price       float32 `json:"price"`
-	SKU         string  `json:"sku"`
+	Price       float32 `json:"price" validate:"gt=0"`
+	SKU         string  `json:"sku" validate:"required,sku"`
 	CreateOn    string  `json:"-"`
 	UpdateOn    string  `json:"-"`
 	DeleteOn    string  `json:"-"`
@@ -23,6 +26,22 @@ type Product struct {
 func (p *Product) FromJSON(r io.Reader) error {
 	e := json.NewDecoder(r)
 	return e.Decode(p)
+}
+
+func (p *Product) Validate() error {
+	validate := validator.New()
+	validate.RegisterValidation("sku", validSku)
+	return validate.Struct(p)
+}
+
+func validSku(fl validator.FieldLevel) bool {
+	// three letters three numbers
+	re := regexp.MustCompile(`\b[A-z]{3}[0-9]{3}\b`)
+	matches := re.FindAllString(fl.Field().String(), -1)
+	if len(matches) != 1 {
+		return false
+	}
+	return true
 }
 
 // Products is a slice made of Products
