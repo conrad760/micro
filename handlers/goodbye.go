@@ -6,11 +6,11 @@ import (
 	"log"
 	"net/http"
 )
-
+// Goodbye introduce a logger for logging
 type Goodbye struct {
 	l *log.Logger
 }
-
+// NewGoodbye creates a new goodbye struct with a logger
 func NewGoodbye(l *log.Logger) *Goodbye {
 	return &Goodbye{l}
 }
