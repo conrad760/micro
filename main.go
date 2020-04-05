@@ -1,22 +1,21 @@
 package main
 
 import (
-	"net/http"
-	"fmt"
 	"log"
-	"io/ioutil"
+	"net/http"
+	"os"
+
+	"github.com/conrad760/micro/handlers"
 )
 
 func main() {
-	http.HandleFunc("/", func(rw http.ResponseWriter, r*http.Request) {
-		log.Println("Hello World")
-		d, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			http.Error(rw, "Oops", http.StatusBadRequest)
-			return
-		}
+	l := log.New(os.Stdout, "conrad-api", log.LstdFlags)
+	hh := handlers.NewHello(l)
+	gh := handlers.NewGoodbye(l)
 
-		fmt.Fprintf(rw, "Hello %s", d)
-	})
-	http.ListenAndServe(":9090", nil)
+	sm := http.NewServeMux()
+	sm.Handle("/", hh)
+	sm.Handle("/goodbye", gh)
+
+	http.ListenAndServe(":9090", sm)
 }
