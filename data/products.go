@@ -76,6 +76,18 @@ func UpdateProduct(id int, p *Product) error {
 	return nil
 }
 
+// DeleteProduct changes existing products
+func DeleteProduct(id int, p *Product) error {
+	_, position, err := findProduct(id)
+	if err != nil {
+		return err
+	}
+	p.ID = id
+	p.DeleteOn = time.Now().UTC().String()
+	productList[position] = nil
+	return nil
+}
+
 // ErrProductNotFound returns an Error when a product is not found
 var ErrProductNotFound = fmt.Errorf("Product not found")
 
